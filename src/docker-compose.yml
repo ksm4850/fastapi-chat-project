@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  fastapi1:
+  fastapi:
     build:
       context: ..
       dockerfile: src/Dockerfile
@@ -9,12 +9,14 @@ services:
       - redis
       - mongo
     ports:
-      - "5051:5959"
+      - "8000:8000"
     networks:
       - my_network
 
   postgres:
     image: postgres:15
+    env_file:
+      - .env
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
