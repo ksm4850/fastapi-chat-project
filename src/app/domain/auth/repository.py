@@ -1,0 +1,3 @@
+class TokenRepository:
+
+    pass

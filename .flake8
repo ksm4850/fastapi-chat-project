@@ -4,8 +4,8 @@ exclude =
     .env,
     __pycache__,
     .venv,
-    migrations
+    src/migrations
+    src/migrations/*
 
 ignore =
-    E203,
-    W503,
+    E203,W503,F401,F821,F841

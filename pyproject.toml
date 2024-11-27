@@ -3,7 +3,7 @@ build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
 
 [tool.black]
-line-length = 79
+line-length = 88
 
 [tool.isort]
 profile = "black"
@@ -21,7 +21,6 @@ asyncpg = "^0.30.0"
 bcrypt = "^4.2.1"
 dependency-injector = "^4.43.0"
 fastapi = "0.108.0"
-jwt = "^1.3.1"
 pydantic = "^2.10.0"
 pydantic-core = "^2.14.5"
 pydantic-settings = "^2.1.0"
@@ -29,6 +28,10 @@ python = "^3.11"
 python-dotenv = "^1.0.1"
 sqlalchemy = "^2.0.36"
 uvicorn = "^0.32.1"
+pyjwt = "^2.10.0"
+orjson = "^3.10.12"
+gunicorn = "^23.0.0"
+alembic = "^1.14.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
