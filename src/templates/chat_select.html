@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅방 선택</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- 상단 네비게이션 -->
+    <div class="flex justify-between items-center p-4 bg-white shadow-md">
+        <!-- 왼쪽: 친구 추가 입력창과 버튼 -->
+        <div class="flex items-center space-x-4">
+            <input type="text" id="friend-input" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="친구 추가" />
+            <button class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">친구 추가</button>
+        </div>
+
+        <!-- 중앙: 로그인한 유저 닉네임 -->
+        <div class="text-lg font-semibold text-gray-700">
+            사용자: <span id="nickname">닉네임</span>
+        </div>
+
+        <!-- 오른쪽: 로그아웃 버튼 -->
+        <button class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">로그아웃</button>
+    </div>
+
+    <!-- 화면 중앙: 친구 목록과 참여 중인 채팅방 -->
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 친구 목록 -->
+        <div class="bg-white p-6 shadow-md rounded-lg">
+            <h3 class="text-xl font-semibold mb-4">친구 목록</h3>
+            <ul id="friend-list" class="space-y-2">
+                <li class="p-2 border-b">친구 1</li>
+                <li class="p-2 border-b">친구 2</li>
+                <li class="p-2 border-b">친구 3</li>
+                <!-- 친구 추가 시 목록에 동적으로 추가될 예정 -->
+            </ul>
+        </div>
+
+        <!-- 참여 중인 채팅방 -->
+        <div class="bg-white p-6 shadow-md rounded-lg">
+            <h3 class="text-xl font-semibold mb-4">내 채팅방</h3>
+            <ul id="chat-room-list" class="space-y-2">
+                <li class="p-2 border-b">방 1</li>
+                <li class="p-2 border-b">방 2</li>
+                <li class="p-2 border-b">방 3</li>
+                <!-- 채팅방 목록은 서버로부터 동적으로 로드될 수 있음 -->
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>

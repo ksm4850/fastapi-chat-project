@@ -18,7 +18,6 @@ class AuthBackend(AuthenticationBackend):
         current_user = CurrentUser()
         authorization: str = conn.headers.get("Authorization")
         if not authorization:
-            print(current_user)
             return False, current_user
 
         try:

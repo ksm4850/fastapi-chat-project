@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex justify-center items-center h-screen bg-gray-100">
+
+    <div class="w-96 p-8 bg-white shadow-md rounded-lg">
+        <h2 class="text-2xl font-semibold text-center mb-6">회원가입</h2>
+        <form action="/signup" method="POST">
+            <!-- 이메일 입력 -->
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-700">이메일</label>
+                <input type="email" id="email" name="email" class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+            </div>
+
+            <!-- 비밀번호 입력 -->
+            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-700">비밀번호</label>
+                <input type="password" id="password" name="password" class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+            </div>
+
+            <!-- 닉네임 입력 -->
+            <div class="mb-4">
+                <label for="nickname" class="block text-sm font-medium text-gray-700">닉네임</label>
+                <input type="text" id="nickname" name="nickname" class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+            </div>
+
+            <!-- 가입 버튼 -->
+            <div class="flex justify-center mt-6">
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">회원가입</button>
+            </div>
+        </form>
+
+        <!-- 로그인 페이지 링크 -->
+        <div class="mt-4 text-center">
+            <span class="text-sm text-gray-600">이미 계정이 있나요? </span>
+            <a href="/login" class="text-indigo-600 hover:text-indigo-800">로그인</a>
+        </div>
+    </div>
+
+</body>
+</html>
