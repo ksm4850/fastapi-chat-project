@@ -5,7 +5,13 @@ FROM python:3.11-slim
 WORKDIR /fastapi-chat-project
 
 # 시스템 의존성 설치
-RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends  \
+    gcc libpq-dev wget tar && rm -rf /var/lib/apt/lists/*
+
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 # Poetry 설치
 RUN pip install poetry
@@ -22,9 +28,11 @@ COPY . /fastapi-chat-project
 
 # PYTHONPATH 설정
 ENV PYTHONPATH=/fastapi-chat-project/src
+ENV TZ=Asia/Seoul
+
+WORKDIR /fastapi-chat-project/src
 
 # 실행 권한 부여
 RUN chmod +x /fastapi-chat-project/src/scripts/start.sh
-
 # Start Gunicorn with Uvicorn
 CMD ["/fastapi-chat-project/src/scripts/start.sh"]

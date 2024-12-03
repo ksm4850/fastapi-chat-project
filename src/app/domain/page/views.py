@@ -4,6 +4,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from jinja2 import FileSystemLoader
 
 from app.core.config import get_config
 from app.core.fastapi.deps import get_current_user
