@@ -4,7 +4,7 @@ from functools import wraps
 from dependency_injector.wiring import Provide, inject
 from sqlalchemy.ext.asyncio import async_scoped_session
 
-session: async_scoped_session = Provide["session"]
+from app.core.db.session import session
 
 
 class Propagation(Enum):

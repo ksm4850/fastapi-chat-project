@@ -1,8 +1,8 @@
 from dependency_injector import containers, providers
 
 from app.core.db import session
-from app.domain.user.repository import UserRepository
-from app.domain.user.service import UserService
+from app.domain.user.repositorys import UserRepository
+from app.domain.user.services import UserService
 
 
 class UserContainer(containers.DeclarativeContainer):

@@ -6,6 +6,7 @@ from pydantic import (
     AnyHttpUrl,
     FieldValidationInfo,
     PostgresDsn,
+    RedisDsn,
     field_validator,
 )
 from pydantic_settings import BaseSettings
@@ -14,7 +15,7 @@ from pydantic_settings import BaseSettings
 class Config(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str = "secret_key"
-    JWT_TOKEN_EXPIRE_MINUTES: int = 15
+    JWT_TOKEN_EXPIRE_MINUTES: int = 3000
     JWT_REFRESH_TOKEN_EXPIRE_MINUTES: int = 3000
     TEST: bool = False
     DEBUG: bool = False
@@ -29,10 +30,13 @@ class Config(BaseSettings):
     POSTGRES_DB: str = "chat"
     POSTGRES_PORT: int = 5432
 
-    REDIS_SERVER: str = "localhost"
+    REDIS_SERVER: str = "127.0.0.1"
+    REDIS_USER: str = ""
     REDIS_PASSWORD: str = ""
     REDIS_PORT: int = 6379
     REDIS_EXPIRE_TIME: int = 86400
+
+    REDIS_URI: str | None = None
 
     MONGO_DB_NAME: str = ""
     MONGO_URL: str = ""
@@ -43,7 +47,7 @@ class Config(BaseSettings):
     SQLALCHEMY_DATABASE_URI: str | None = None
     SQLALCHEMY_TEST_DATABASE_URI: PostgresDsn | None = None
 
-    TEMPLATE_DIR: str = "/fastapi-chat-project/src/templates"
+    TEMPLATE_DIR: str = "./src/templates"
 
     # noinspection PyMethodParameters
     @field_validator("SQLALCHEMY_DATABASE_URI")
@@ -61,6 +65,22 @@ class Config(BaseSettings):
             )
         )
 
+    # noinspection PyMethodParameters
+    @field_validator("REDIS_URI")
+    def redis_connection(cls, v: str | None, values: FieldValidationInfo) -> Any:
+        if isinstance(v, str):
+            return v
+        return str(
+            RedisDsn.build(
+                scheme="redis",
+                username=values.data.get("REDIS_USER"),
+                password=quote(values.data.get("REDIS_PASSWORD")),
+                host=values.data.get("REDIS_SERVER"),
+                port=values.data.get("REDIS_PORT"),
+                path=f"{values.data.get('REDIS_DB') or ''}",
+            )
+        )
+
     class Config:
         case_sensitive = True
         env_file = "../../.env"
@@ -70,19 +90,18 @@ class LocalConfig(Config):
     DEBUG: bool = True
     SQL_PRINT: bool = True
 
-    POSTGRES_SERVER: str = "localhost"
+    POSTGRES_SERVER: str = "127.0.0.1"
     POSTGRES_SCHEMA: str = "public"
 
-    REDIS_SERVER: str = "localhost"
+    REDIS_SERVER: str = "127.0.0.1"
 
 
 class TestConfig(Config):
     TEST: bool = True
 
-    POSTGRES_SERVER: str = "localhost"
-    POSTGRES_SCHEMA: str = "test"
+    POSTGRES_SERVER: str = "127.0.0.1"
 
-    REDIS_SERVER: str = "localhost"
+    REDIS_SERVER: str = "127.0.0.1"
 
 
 class ProdConfig(Config):

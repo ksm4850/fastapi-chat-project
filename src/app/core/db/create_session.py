@@ -1,7 +1,10 @@
+from contextlib import asynccontextmanager
 from uuid import uuid4
 
 from dependency_injector.wiring import Provide
 from sqlalchemy.ext.asyncio import async_scoped_session
+
+from app.core.db.session import session
 
 from .session import reset_session_context, set_session_context
 
@@ -21,3 +24,16 @@ def create_session(func):
             reset_session_context(context=context)
 
     return _create_session
+
+
+@asynccontextmanager
+async def create_session_context():
+    session_id = str(uuid4())
+    context = set_session_context(session_id=session_id)
+    try:
+        yield session
+    except Exception as e:
+        await session.rollback()
+    finally:
+        await session.remove()
+        reset_session_context(context=context)

@@ -5,8 +5,7 @@ from sqlalchemy import and_, or_, select
 from sqlalchemy.ext.asyncio import async_scoped_session
 
 from app.core.db.schema.user import User
-
-session: async_scoped_session = Provide["session"]
+from app.core.db.session import session
 
 
 class UserRepository:

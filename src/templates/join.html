@@ -11,7 +11,7 @@
 
     <div class="w-96 p-8 bg-white shadow-md rounded-lg">
         <h2 class="text-2xl font-semibold text-center mb-6">회원가입</h2>
-        <form action="/signup" method="POST">
+        <form id="registerForm" method="POST">
             <!-- 이메일 입력 -->
             <div class="mb-4">
                 <label for="email" class="block text-sm font-medium text-gray-700">이메일</label>
@@ -20,10 +20,14 @@
 
             <!-- 비밀번호 입력 -->
             <div class="mb-4">
-                <label for="password" class="block text-sm font-medium text-gray-700">비밀번호</label>
-                <input type="password" id="password" name="password" class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                <label for="password1" class="block text-sm font-medium text-gray-700">비밀번호</label>
+                <input type="password" id="password1" name="password" class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
             </div>
-
+            <!-- 비밀번호 확인 입력 -->
+            <div class="mb-4">
+                <label for="password2" class="block text-sm font-medium text-gray-700">비밀번호 확인</label>
+                <input type="password" id="password2" name="password" class="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+            </div>
             <!-- 닉네임 입력 -->
             <div class="mb-4">
                 <label for="nickname" class="block text-sm font-medium text-gray-700">닉네임</label>
@@ -42,6 +46,38 @@
             <a href="/login" class="text-indigo-600 hover:text-indigo-800">로그인</a>
         </div>
     </div>
+    <script>
+        document.getElementById('registerForm').onsubmit = async function(event) {
+            event.preventDefault();
+            var email = document.getElementById('email').value;
+            var password1 = document.getElementById('password1').value;
+            var password2 = document.getElementById('password2').value;
+            var nickname = document.getElementById('nickname').value;
+            if (password1 != password2){
+                throw new Error('비밀번호 불일치');
+            }
 
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/v1/user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email, password1,password2, nickname
+                    })
+                });
+
+                if (response.ok) {
+                    alert("회원가입이 완료됐습니다.");
+                    window.location.href = 'http://127.0.0.1:8000/login';
+                } else {
+                    throw new Error('회원가입 실패');
+                }
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+    </script>
 </body>
 </html>

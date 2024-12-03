@@ -2,7 +2,7 @@ import bcrypt
 from dependency_injector.wiring import Provide, inject
 
 from app.core.db.transactional import Transactional
-from app.domain.auth.service import TokenService
+from app.domain.auth.services import TokenService
 
 from .exceptions import (
     DuplicateEmailOrNicknameException,
@@ -10,8 +10,8 @@ from .exceptions import (
     PasswordDoesNotMatchException,
     UserNotFoundException,
 )
-from .models import LoginRes
-from .repository import UserRepository
+from .models import LoginRes, UserBase
+from .repositorys import UserRepository
 
 
 def hash_password(password: str) -> str:
@@ -29,6 +29,11 @@ def check_password(hashed_password: str, user_password: str) -> bool:
 class UserService:
     def __init__(self, repository: UserRepository):
         self.repository = repository
+
+    async def get_user(self, user_id) -> UserBase:
+        user = await self.repository.get_user(user_id)
+
+        return UserBase.model_validate(user)
 
     @Transactional()
     async def create_user(self, email, password1, password2, nickname):

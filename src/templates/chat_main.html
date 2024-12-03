@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅방 선택</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- 상단 네비게이션 -->
+    <div class="flex justify-between items-center p-4 bg-white shadow-md">
+
+        <!-- 중앙: 로그인한 유저 닉네임 -->
+        <div class="text-lg font-semibold text-gray-700">
+            사용자: <span id="nickname">{{ user.nickname }}</span>
+        </div>
+
+        <!-- 오른쪽: 로그아웃 버튼 -->
+        <button id="logout" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">로그아웃</button>
+    </div>
+
+    <!-- 화면 중앙: 친구 목록과 참여 중인 채팅방 -->
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+
+        <!-- 채팅방 탭 -->
+        <div class="bg-white p-6 shadow-md rounded-lg">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold mb-4">채팅방</h3>
+                <!-- 채팅방 생성 버튼 -->
+                <button id="create-chat-room" class="px-4 py-1 text-md font-semibold text-white bg-blue-500 hover:bg-blue-600 focus:outline-none rounded-lg ml-auto">
+                    채팅방 생성
+                </button>
+            </div>
+
+            <!-- 탭 부분 -->
+            <div class="flex border-b">
+                <!-- 전체 채팅방 탭 -->
+                <button id="all-chat-tab" class="px-6 py-2 text-lg font-semibold text-gray-700 hover:text-blue-500 focus:outline-none border-b-2 border-transparent hover:border-blue-500">
+                    전체 채팅방
+                </button>
+                <!-- 내 채팅방 탭 -->
+                <button id="my-chat-tab" class="px-6 py-2 text-lg font-semibold text-gray-700 hover:text-blue-500 focus:outline-none border-b-2 border-transparent hover:border-blue-500">
+                    내 채팅방
+                </button>
+            </div>
+
+            <!-- 탭 내용 -->
+            <div class="tab-content mt-4">
+                <!-- 전체 채팅방 리스트 -->
+                <ul id="all-chat-room-list" class="space-y-2 hidden">
+                    <li class="p-2 border-b cursor-pointer hover:bg-gray-100 hover:shadow-md" data-chat-id="1">전체 방 1</li>
+                    <li class="p-2 border-b cursor-pointer hover:bg-gray-100 hover:shadow-md" data-chat-id="2">전체 방 2</li>
+                    <li class="p-2 border-b cursor-pointer hover:bg-gray-100 hover:shadow-md" data-chat-id="4">전체 방 3</li>
+                    <!-- 전체 채팅방 목록은 서버로부터 동적으로 로드될 수 있음 -->
+                </ul>
+
+                <!-- 내 채팅방 리스트 -->
+                <ul id="my-chat-room-list" class="space-y-2">
+                    <li class="p-2 border-b cursor-pointer flex justify-between items-center hover:bg-gray-100 hover:shadow-md" data-chat-id="1">
+                        내방 1
+                        <button class="text-red-500 hover:text-red-700 ml-auto" onclick="removeChatRoom(event)">X</button>
+                    </li>
+                    <li class="p-2 border-b cursor-pointer flex justify-between items-center hover:bg-gray-100 hover:shadow-md" data-chat-id="2">
+                        내방 2
+                        <button class="text-red-500 hover:text-red-700 ml-auto" onclick="removeChatRoom(event)">X</button>
+                    </li>
+                    <li class="p-2 border-b flex cursor-pointer justify-between items-center hover:bg-gray-100 hover:shadow-md" data-chat-id="4">
+                        내방 3
+                        <button class="text-red-500 hover:text-red-700 ml-auto" onclick="removeChatRoom(event)">X</button>
+                    </li>
+                    <!-- 내 채팅방 목록은 서버로부터 동적으로 로드될 수 있음 -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- 채팅 화면 -->
+        <div id="chat-room-view" class="bg-white p-6 shadow-md rounded-lg hidden">
+            <h3 id="chat-room-title" class="text-xl font-semibold mb-4">채팅방</h3>
+            <div id="chat-messages" class="h-64 overflow-y-auto border p-4 mb-4 space-y-2">
+                <!-- 채팅 메시지가 여기에 추가됨 -->
+            </div>
+            <div class="flex">
+                <input id="chat-input" type="text" class="flex-1 border p-2 rounded-l-md" placeholder="메시지 입력">
+                <button id="send-message" class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700">전송</button>
+            </div>
+        </div>
+    </div>
+    <!-- 모달창 배경 -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>
+
+    <!-- 모달창 -->
+    <div id="modal" class="fixed hidden z-50 flex justify-center items-center top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96 relative">
+            <h3 class="text-xl font-semibold mb-4">채팅방 이름 입력</h3>
+
+            <!-- 채팅방 이름 입력 폼 -->
+            <input id="chat-room-name" type="text" class="w-full p-2 border border-gray-300 rounded mb-4" placeholder="채팅방 이름을 입력하세요" />
+
+            <!-- 채팅방 생성 버튼 -->
+            <button id="submit-chat-room" class="w-full px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded-lg">
+                채팅방 생성
+            </button>
+
+            <!-- 모달 닫기 버튼 (오른쪽 위) -->
+            <button id="close-modal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                X
+            </button>
+        </div>
+    </div>
+</body>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        userId = {{ user.id }}
+        // WebSocket 객체
+        let socket = null;
+
+        // 탭 전환 기능
+        document.getElementById('all-chat-tab').addEventListener('click', () => {
+            getChatList('all').then(res=>{
+                let chatList = res.chatList
+                var html = "";
+
+                chatList.forEach(data => {
+                    html += `<li class="p-2 border-b cursor-pointer hover:bg-gray-100 hover:shadow-md" data-chat-id="${data.id}" data-title="${data.title}">${data.title}</li>`
+                });
+
+                document.getElementById('all-chat-room-list').innerHTML = html;
+            });
+
+            document.getElementById('all-chat-room-list').classList.remove('hidden');
+            document.getElementById('my-chat-room-list').classList.add('hidden');
+            document.getElementById('all-chat-tab').classList.add('border-blue-500');
+            document.getElementById('my-chat-tab').classList.remove('border-blue-500');
+        });
+
+        document.getElementById('my-chat-tab').addEventListener('click', () => {
+            getChatList('my').then(res=>{
+                let chatList = res.chatList
+                var html = ""
+                chatList.forEach(data => {
+                    html += `<li class="p-2 border-b cursor-pointer flex justify-between items-center hover:bg-gray-100 hover:shadow-md" data-chat-id="${data.id}" data-title="${data.title}">`
+                    html += `${data.title}`
+                    html += `<button class="text-red-500 hover:text-red-700 ml-auto" onclick="exitChatRoom(${data.id})">X</button>`
+                    html += `</li>`
+                });
+
+                document.getElementById('my-chat-room-list').innerHTML = html;
+            });
+            document.getElementById('my-chat-room-list').classList.remove('hidden');
+            document.getElementById('all-chat-room-list').classList.add('hidden');
+            document.getElementById('my-chat-tab').classList.add('border-blue-500');
+            document.getElementById('all-chat-tab').classList.remove('border-blue-500');
+        });
+
+        // 기본적으로 내 채팅방 탭을 활성화
+        document.getElementById('my-chat-tab').click();
+
+        // 채팅방 클릭 이벤트
+        document.getElementById('all-chat-room-list').addEventListener('click', (event) => {
+            const chatId = event.target.dataset.chatId; // 클릭된 채팅방의 ID
+            const title = event.target.dataset.title; // 클릭된 채팅방의 제목
+            if (!chatId) return;
+            openChatRoom(chatId,title);
+        });
+        document.getElementById('my-chat-room-list').addEventListener('click', (event) => {
+            console.log(event.target.dataset)
+            const chatId = event.target.dataset.chatId; // 클릭된 채팅방의 ID
+            const title = event.target.dataset.title; // 클릭된 채팅방의 제목
+            if (!chatId) return;
+            openChatRoom(chatId,title);
+        });
+
+
+        // WebSocket 연결 및 채팅방 UI 업데이트
+        function openChatRoom(chatId,title) {
+            // WebSocket 연결
+            if (socket) {
+                socket.close(); // 기존 연결 닫기
+            }
+
+            socket = new WebSocket(`ws://localhost:8000/api/v1/chat/ws/${chatId}/${userId}`);
+
+            socket.onopen = () => {
+                console.log(`Connected to room ${chatId}`);
+            };
+
+            socket.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                console.log(message)
+                // 메시지 컨테이너 생성
+                const messageElem = document.createElement('div');
+                messageElem.classList.add('p-3', 'bg-gray-100', 'rounded-lg', 'shadow-sm', 'flex', 'flex-col');
+
+                // 닉네임 생성
+                const nicknameElem = document.createElement('span');
+                nicknameElem.textContent = message.nickname;
+                nicknameElem.classList.add('text-sm', 'font-bold', 'text-blue-600', 'mb-1');
+
+                // 메시지 내용 생성
+                const contentElem = document.createElement('span');
+                contentElem.textContent = message.message;
+                contentElem.classList.add('text-gray-800', 'text-base');
+
+                if (message.user_id === userId) {  // '내 닉네임'을 실제 닉네임으로 교체
+                    messageElem.style.textAlign = 'right';  // 오른쪽 정렬
+                    messageElem.classList.add('bg-blue-100');  // 배경색
+                } else {
+                    messageElem.style.textAlign = 'left';   // 왼쪽 정렬
+                    messageElem.classList.add('bg-gray-200');  // 배경색
+                }
+                // 메시지 컨테이너에 추가
+                messageElem.appendChild(nicknameElem);
+                messageElem.appendChild(contentElem);
+
+                // 메시지를 메시지 리스트에 추가
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.appendChild(messageElem);
+
+                // 새 메시지가 추가되면 스크롤을 맨 아래로 이동
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            };
+
+            socket.onclose = () => {
+                console.log("WebSocket closed");
+            };
+
+            // 채팅 UI 표시
+            document.getElementById('chat-room-view').classList.remove('hidden');
+            document.getElementById('chat-room-title').textContent = `${title}`;
+            document.getElementById('chat-messages').innerHTML = ''; // 이전 메시지 초기화
+        }
+
+        const input = document.getElementById('chat-input');
+        input.addEventListener('keydown', function(event){
+            if (event.key === 'Enter') {
+                const message = input.value.trim();
+                send_message(input);
+            }
+        });
+
+        // 메시지 전송
+        document.getElementById('send-message').addEventListener('click', () => {
+            const input = document.getElementById('chat-input');
+            send_message(input);
+        });
+
+        function send_message(text){
+            const message = input.value.trim();
+            if (message && socket) {
+                socket.send(message);
+                input.value = '';
+            }
+        }
+
+        //로그아웃
+        document.getElementById('logout').addEventListener('click', () => {
+            document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+            document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+            window.location.href = "http://127.0.0.1:8000/login";
+        });
+
+        const createChatRoomButton = document.getElementById('create-chat-room');
+        const modal = document.getElementById('modal');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const closeModalButton = document.getElementById('close-modal');
+        const submitChatRoomButton = document.getElementById('submit-chat-room');
+        const chatRoomNameInput = document.getElementById('chat-room-name');
+        // 모달 열기
+        createChatRoomButton.addEventListener('click', () => {
+            chatRoomNameInput.value = ''; // 입력 필드 초기화
+            modal.classList.remove('hidden');
+            modalOverlay.classList.remove('hidden');
+        });
+
+        // 모달 닫기
+        closeModalButton.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modalOverlay.classList.add('hidden');
+        });
+
+        // 배경 클릭 시 모달 닫기
+        modalOverlay.addEventListener('click', () => {
+            console.log("cc");
+            modal.classList.add('hidden');
+            modalOverlay.classList.add('hidden');
+        });
+
+        // 채팅방 생성 버튼 클릭 시 처리
+        submitChatRoomButton.addEventListener('click', () => {
+            const chatRoomName = chatRoomNameInput.value.trim();
+
+            if (chatRoomName) {
+                addChatRoom(chatRoomName).then(res=>{
+                    alert(`채팅방 '${chatRoomName}'이(가) 생성되었습니다.`);
+                    document.getElementById('my-chat-tab').click();
+                    // 모달 닫기
+                    modal.classList.add('hidden');
+                    modalOverlay.classList.add('hidden');
+                    chatRoomNameInput.value = ''; // 입력 필드 초기화
+                }).catch(error=>{
+                    alert('오류');
+                    console.log(error)
+                })
+            } else {
+                alert('채팅방 이름을 입력해주세요.');
+            }
+        });
+    });
+
+    const getChatList = (type) => {
+        return new Promise((resolve,reject)=>{
+            fetch(`http://127.0.0.1:8000/api/v1/chat/list?list_type=${type}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            }).then(res=>{
+                if (res.ok) {
+
+                    resolve(res.json());
+                } else {
+                    reject(new Error('Failed to fetch'));
+                }
+            }).catch(error => {
+                reject(error);
+            });
+        });
+    }
+
+    const addChatRoom = (title) => {
+        return new Promise((resolve,reject)=>{
+            fetch(`http://127.0.0.1:8000/api/v1/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title
+                })
+            }).then(res=>{
+                if (res.ok) {
+                    resolve();
+                } else {
+                    reject(new Error('Failed to fetch'));
+                }
+            }).catch(error => {
+                reject(error);
+            });
+        });
+    }
+
+    const exitChatRoom = (chatId) => {
+        if(!confirm('채팅방을 나가시겠습니까?')) return;
+        fetch(`http://127.0.0.1:8000/api/v1/chat/${chatId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        }).then(res=>{
+            if (res.ok) {
+                document.getElementById('my-chat-tab').click();
+            } else {
+                alert("실패");
+            }
+        }).catch(error => {
+            alert("오류");
+        });
+    }
+</script>
+</html>

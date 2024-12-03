@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 
-from .service import TokenService
+from .services import TokenService
 
 
 class AuthContainer(containers.DeclarativeContainer):

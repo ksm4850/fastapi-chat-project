@@ -5,9 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 # from app.core.db import session
-from app.core.db.session import reset_session_context, set_session_context
-
-session: async_scoped_session = Provide["session"]
+from app.core.db.session import reset_session_context, session, set_session_context
 
 
 class SQLAlchemyMiddleware:
@@ -25,7 +23,6 @@ class SQLAlchemyMiddleware:
         send: Send,
     ) -> None:
         session_id = str(uuid4())
-        print(session_id)
         context = set_session_context(session_id=session_id)
         try:
             await self.app(scope, receive, send)
@@ -33,5 +30,4 @@ class SQLAlchemyMiddleware:
             raise e
         finally:
             await session.remove()
-            print(context)
             reset_session_context(context=context)

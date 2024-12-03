@@ -1,12 +1,15 @@
+from abc import ABC
 from http import HTTPStatus
 
 from app.core.enums import ResponseCode
 
 
-class CustomException(Exception):
-    code = HTTPStatus.BAD_GATEWAY
-    error_code = HTTPStatus.BAD_GATEWAY
-    message = HTTPStatus.BAD_GATEWAY.description
+class CustomException(ABC, Exception):
+    """AbstractException"""
+
+    http_code: int
+    error_code: int
+    message: str
 
     def __init__(self, message=None):
         if message:
