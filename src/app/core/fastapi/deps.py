@@ -43,7 +43,8 @@ async def get_current_user(
     token: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error=False)),
 ) -> UserBase:
 
-    access_token = token if token else request.cookies.get("access_token")
+    access_token = token if token else request.cookies.get("accessToken")
+    print(access_token)
     payload: dict = user_token_verify(access_token)
     user_id = payload.get("user_id", None)
     user = await user_service.get_user(user_id)

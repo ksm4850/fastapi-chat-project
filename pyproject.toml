@@ -27,7 +27,7 @@ pydantic-settings = "^2.1.0"
 python = "^3.11"
 python-dotenv = "^1.0.1"
 sqlalchemy = "^2.0.36"
-uvicorn = "^0.32.1"
+uvicorn = {extras = ["standard"], version = "^0.32.1"}
 pyjwt = "^2.10.0"
 orjson = "^3.10.12"
 gunicorn = "^23.0.0"
