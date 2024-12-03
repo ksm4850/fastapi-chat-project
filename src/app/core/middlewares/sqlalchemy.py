@@ -5,7 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 # from app.core.db import session
-from app.core.db.session import reset_session_context, session, set_session_context
+from app.core.db.session import (
+    reset_session_context,
+    session,
+    set_session_context,
+)
 
 
 class SQLAlchemyMiddleware:
