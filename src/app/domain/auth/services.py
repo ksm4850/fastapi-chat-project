@@ -3,20 +3,12 @@ from datetime import datetime
 from dependency_injector.wiring import Provide, inject
 from sqlalchemy.ext.asyncio import async_scoped_session
 
-from app.core.exceptions.token import (
-    TokenDecodeException,
-    TokenExpireException,
-)
+from app.core.exceptions.token import TokenDecodeException, TokenExpireException
 from app.core.utils.token_helper import TokenHelper
 from app.domain.user.repositorys import UserRepository
 
-session: async_scoped_session = Provide["session"]
-
 
 class TokenService:
-    # def __init__(self, repository: TokenRepository):
-    #     self.repository = repository
-
     @inject
     async def issue_token(
         self,

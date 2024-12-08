@@ -16,9 +16,9 @@ from app.core.db.session import (
     reset_session_context,
     set_session_context,
 )
-from app.core.middlewares.sqlalchemy import SQLAlchemyMiddleware
 from app.domain.auth.container import AuthContainer
 from app.domain.chat.container import ChatContainer
+from app.domain.log.container import LogContainer
 from app.domain.user.container import UserContainer
 
 
@@ -28,8 +28,9 @@ class AppContainer(containers.DeclarativeContainer):
     )
     _config = get_config()
     config = providers.Configuration()
-    config.from_dict(_config.dict())
+    config.from_dict(_config.model_dump())
 
     user_container = providers.Container(UserContainer)
     auth_container = providers.Container(AuthContainer)
     chat_container = providers.Container(ChatContainer)
+    log_container = providers.Container(LogContainer)

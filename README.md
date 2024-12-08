@@ -11,6 +11,10 @@
 ![Static Badge](https://img.shields.io/badge/Docker-%232496ED)
 ![Static Badge](https://img.shields.io/badge/JwtToken-red)
 
+## 목표
+1. 웹소켓에 대한 이해
+2. DIP에 대한 이해
+
 ##  프로젝트 상세 내용
 #### 1. FastAPI 웹소켓 공식문서 URL : https://fastapi.tiangolo.com/ko/advanced/websockets/
 #### 2. dependency-injector 공식문서 URL : https://python-dependency-injector.ets-labs.org/

@@ -4,17 +4,13 @@ from pathlib import Path
 from typing import Any, List
 from urllib.parse import quote
 
-from pydantic import (
-    AnyHttpUrl,
-    FieldValidationInfo,
-    PostgresDsn,
-    RedisDsn,
-    field_validator,
-)
-from pydantic_settings import BaseSettings
+from dotenv import find_dotenv
+from pydantic import AnyHttpUrl, PostgresDsn, RedisDsn, ValidationInfo, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
+
     JWT_ALGORITHM: str = "HS256"
     JWT_SECRET_KEY: str = "JWT_SECRET_KEY"
     JWT_TOKEN_EXPIRE_MINUTES: int = 3000
@@ -58,7 +54,7 @@ class Config(BaseSettings):
 
     # noinspection PyMethodParameters
     @field_validator("SQLALCHEMY_DATABASE_URI")
-    def assemble_db_connection(cls, v: str | None, values: FieldValidationInfo) -> Any:
+    def assemble_db_connection(cls, v: str | None, values: ValidationInfo) -> Any:
         if isinstance(v, str):
             return v
         return str(
@@ -74,7 +70,7 @@ class Config(BaseSettings):
 
     # noinspection PyMethodParameters
     @field_validator("REDIS_URI")
-    def redis_connection(cls, v: str | None, values: FieldValidationInfo) -> Any:
+    def redis_connection(cls, v: str | None, values: ValidationInfo) -> Any:
         if isinstance(v, str):
             return v
         return str(
@@ -88,31 +84,26 @@ class Config(BaseSettings):
             )
         )
 
-    class Config:
-        case_sensitive = True
-        env_file = "../../.env"
-
 
 class LocalConfig(Config):
+    model_config = SettingsConfigDict(
+        env_file=find_dotenv(".env.local"), env_ignore_empty=True, extra="ignore"
+    )
     DEBUG: bool = True
     SQL_PRINT: bool = True
-
-    POSTGRES_SERVER: str = "127.0.0.1"
-    POSTGRES_SCHEMA: str = "public"
-
-    REDIS_SERVER: str = "127.0.0.1"
 
 
 class TestConfig(Config):
     TEST: bool = True
-
-    POSTGRES_SERVER: str = "127.0.0.1"
-
-    REDIS_SERVER: str = "127.0.0.1"
+    model_config = SettingsConfigDict(
+        env_file=find_dotenv(".env.test"), env_ignore_empty=True, extra="ignore"
+    )
 
 
 class ProdConfig(Config):
-    pass
+    model_config = SettingsConfigDict(
+        env_file=find_dotenv(".env"), env_ignore_empty=True, extra="ignore"
+    )
 
 
 def get_config():

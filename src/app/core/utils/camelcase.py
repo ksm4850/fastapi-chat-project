@@ -6,19 +6,19 @@ def snake2pascal(snake: str) -> str:
     """
     Converts a snake_case string to PascalCase.
     """
-    camel = snake.title()
-    camel = re.sub("([0-9A-Za-z])_(?=[0-9A-Z])", lambda m: m.group(1), camel)
-    return camel
+    pascal = snake.title()
+    pascal = re.sub("([0-9A-Za-z])_(?=[0-9A-Z])", lambda m: m.group(1), pascal)
+    return pascal
 
 
 def snake2camel(snake: str) -> str:
     """
     Converts a snake_case string to camelCase.
     """
-    pascal = snake.title()
-    pascal = re.sub("([0-9A-Za-z])_(?=[0-9A-Z])", lambda m: m.group(1), pascal)
-    pascal = re.sub("(^_*[A-Z])", lambda m: m.group(1).lower(), pascal)
-    return pascal
+    camel = snake.title()
+    camel = re.sub("([0-9A-Za-z])_(?=[0-9A-Z])", lambda m: m.group(1), camel)
+    camel = re.sub("(^_*[A-Z])", lambda m: m.group(1).lower(), camel)
+    return camel
 
 
 def camel2snake(camel: str) -> str:

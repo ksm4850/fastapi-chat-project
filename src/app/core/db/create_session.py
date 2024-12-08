@@ -26,6 +26,25 @@ def create_session(func):
     return _create_session
 
 
+def standalone_session(func):
+    async def _standalone_session(*args, **kwargs):
+        session_id = str(uuid4())
+        context = set_session_context(session_id=session_id)
+
+        try:
+            result = await func(*args, **kwargs)
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            raise e
+        finally:
+            await session.remove()
+            reset_session_context(context=context)
+        return result
+
+    return _standalone_session
+
+
 @asynccontextmanager
 async def create_session_context():
     session_id = str(uuid4())

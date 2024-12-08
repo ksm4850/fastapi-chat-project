@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from http import HTTPStatus
 from os import environ
 
-from dependency_injector.wiring import inject
+from dependency_injector.wiring import Provide, inject
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -11,7 +11,7 @@ from sqlalchemy import MetaData
 
 from app.api import router
 from app.container import AppContainer
-from app.core import config
+from app.core.config import get_config
 from app.core.exceptions import CustomException
 from app.core.fastapi.custom_josn_response import CustomORJSONResponse
 from app.core.middlewares import (
@@ -19,20 +19,22 @@ from app.core.middlewares import (
     AuthenticationMiddleware,
     SQLAlchemyMiddleware,
 )
+from app.domain.log.services import BaseLogHandler
 from app.domain.page.views import page_router
 
-# from app.core.db.session import Base
+config = get_config()
 
 
-# @asynccontextmanager
-# async def lifespan(_app: FastAPI):
-#     yield
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    print(config)
+    yield
 
 
 @inject
 def init_listeners(
     app_: FastAPI,
-    # log_handler: DatabaseLoghandler = Provide["log_container.db_log_handler"],
+    log_handler: BaseLogHandler = Provide["log_container.log_handler"],
 ) -> None:
     @app_.exception_handler(Exception)
     async def root_exception_handler(request: Request, exc: CustomException):
@@ -40,8 +42,8 @@ def init_listeners(
         Unmanaged exception will be caught here.
         """
         try:
-            # fill your logging
             log_data = {
+                "user_id": request.user.user_id,
                 "ip": request.client.host if request.client else None,
                 "port": request.client.port if request.client else None,
                 "method": request.method,
@@ -49,7 +51,8 @@ def init_listeners(
                 "agent": dict(request.headers.items())["user-agent"],
                 "response_status": HTTPStatus.INTERNAL_SERVER_ERROR,
             }
-            # await log_handler(log_data)
+            await log_handler(log_data)
+            print(log_data)
             return CustomORJSONResponse(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 content={"code": 500, "message": exc},
@@ -99,7 +102,7 @@ def init_middleware(_app: FastAPI) -> None:
     )
 
 
-def create_app(_config) -> FastAPI:
+def create_app() -> FastAPI:
     container = AppContainer()
     _app = FastAPI(
         title="FastApi-chat",
@@ -107,6 +110,7 @@ def create_app(_config) -> FastAPI:
         version="1.0.0",
         docs_url=(None if environ.get("API_ENV") == "production" else "/docs"),
         redoc_url=(None if environ.get("API_ENV") == "production" else "/redoc"),
+        lifespan=lifespan,
         # dependencies = [Depends(Logging)],
     )
     _app.container = container
@@ -119,7 +123,7 @@ def create_app(_config) -> FastAPI:
     return _app
 
 
-app = create_app(config)
+app = create_app()
 
 
 @app.get("/", include_in_schema=False)
@@ -130,4 +134,5 @@ async def root():
 
 @app.get("/ping", include_in_schema=False)
 def ping():
+    raise Exception
     return {"ping": "pong"}
